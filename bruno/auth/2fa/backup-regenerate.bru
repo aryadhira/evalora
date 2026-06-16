@@ -1,0 +1,21 @@
+meta {
+  name: 2FA Regenerate Backup Codes
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{base_url}}/auth/2fa/backup/regenerate
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "totp_code": "123456"
+  }
+}

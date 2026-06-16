@@ -27,6 +27,7 @@ func (m *Migration) Migrate() error {
 			&models.OAuthAccounts{},
 			&models.EmailVerification{},
 			&models.PasswordResetToken{},
+			&models.UserSession{},
 		)
 	}
 	return nil

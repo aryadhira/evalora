@@ -1,0 +1,24 @@
+meta {
+  name: Update Profile
+  type: http
+  seq: 10
+}
+
+patch {
+  url: {{base_url}}/auth/me
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "name": "Arya Dhira Updated",
+    "phone": "+6281234567890",
+    "timezone": "Asia/Jakarta",
+    "avatar_url": ""
+  }
+}

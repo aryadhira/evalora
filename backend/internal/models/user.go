@@ -33,7 +33,7 @@ type UserCredential struct {
 	PasswordHash    string    `gorm:"type:text" json:"password_hash"`
 	TOTPSecret      string    `gorm:"type:text" json:"totp_secret"`
 	TOTPEnabled     bool      `gorm:"default:false" json:"totp_enabled"`
-	TOTPBackupCodes string    `gorm:"type:text[]" json:"totp_backup_codes"`
+	TOTPBackupCodes string    `gorm:"type:text" json:"totp_backup_codes"`
 	CreatedAt       time.Time `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt       time.Time `gorm:"autoUpdateTime" json:"updated_at"`
 }

@@ -1,0 +1,22 @@
+meta {
+  name: 2FA Enable
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/auth/2fa/enable
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "secret": "paste_secret_from_setup_here",
+    "totp_code": "123456"
+  }
+}

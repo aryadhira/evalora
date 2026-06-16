@@ -1,0 +1,27 @@
+meta {
+  name: Login
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{base_url}}/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "aryadhira25@gmail.com",
+    "password": "Password123!"
+  }
+}
+
+script:post-response {
+  if (res.status === 200 && res.body.access_token) {
+    bru.setEnvVar("access_token", res.body.access_token);
+  }
+  if (res.status === 202 && res.body.pending_token) {
+    bru.setEnvVar("pending_token", res.body.pending_token);
+  }
+}

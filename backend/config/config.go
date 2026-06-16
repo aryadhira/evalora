@@ -10,6 +10,8 @@ import (
 
 type Config struct {
 	AppPort            string
+	AppURL             string
+	AppFrontendURL     string
 	DBHost             string
 	DBPort             string
 	DBUser             string
@@ -19,6 +21,10 @@ type Config struct {
 	RedisPort          string
 	RedisPassword      string
 	AppSecret          string
+	GoogleClientID     string
+	GoogleClientSecret string
+	ResendAPIKey       string
+	ResendFromEmail    string
 	MaxIdleConnections int
 	MaxOpenConnections int
 	AutoMigrate        bool
@@ -42,6 +48,8 @@ func LoadConfig() *Config {
 
 	return &Config{
 		AppPort:            os.Getenv("APP_PORT"),
+		AppURL:             os.Getenv("APP_URL"),
+		AppFrontendURL:     os.Getenv("APP_FRONTEND_URL"),
 		DBHost:             os.Getenv("DB_HOST"),
 		DBPort:             os.Getenv("DB_PORT"),
 		DBUser:             os.Getenv("DB_USER"),
@@ -51,6 +59,10 @@ func LoadConfig() *Config {
 		RedisPort:          os.Getenv("REDIS_PORT"),
 		RedisPassword:      os.Getenv("REDIS_PASSWORD"),
 		AppSecret:          os.Getenv("APP_SECRET"),
+		GoogleClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
+		GoogleClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
+		ResendAPIKey:       os.Getenv("RESEND_API_KEY"),
+		ResendFromEmail:    os.Getenv("RESEND_FROM_EMAIL"),
 		MaxIdleConnections: maxIdle,
 		MaxOpenConnections: maxOpen,
 		AutoMigrate:        os.Getenv("AUTO_MIGRATE") == "true",
