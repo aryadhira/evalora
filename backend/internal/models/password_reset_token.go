@@ -4,9 +4,11 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type PasswordResetToken struct {
+	gorm.Model
 	ID        uuid.UUID  `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	UserID    uuid.UUID  `gorm:"type:uuid;not null;unique;foreignKey:UserID;references:ID" json:"user_id"`
 	TokenHash string     `gorm:"type:text;not null;index:idx_prt_token_hash" json:"token_hash"`

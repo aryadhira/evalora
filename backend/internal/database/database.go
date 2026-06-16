@@ -21,6 +21,11 @@ func Connect(cfg *config.Config) *gorm.DB {
 		panic("Failed to connect to database: " + err.Error())
 	}
 
+	err = db.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";").Error
+	if err != nil {
+		panic("Failed to create UUID extension:" + err.Error())
+	}
+
 	logger.Default.LogMode(logger.Info).Info(context.TODO(), "Successfully connected to the database!")
 
 	sqlDB, _ := db.DB()

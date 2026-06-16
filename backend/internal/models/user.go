@@ -11,11 +11,11 @@ type Users struct {
 	gorm.Model
 	ID              uuid.UUID  `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	Name            string     `gorm:"type:varchar(255);not null" json:"name"`
-	Email           string     `gorm:"index:idx_users_email,type:varchar(255);unique;not null" json:"email"`
+	Email           string     `gorm:"index:idx_users_email;type:varchar(255);unique;not null" json:"email"`
 	AvatarURL       string     `gorm:"type:text" json:"avatar_url"`
 	Phone           string     `gorm:"type:varchar(20)" json:"phone"`
 	Timezone        string     `gorm:"type:varchar(50)" json:"timezone"`
-	Status          string     `gorm:"index:idx_users_status,where:status!='active',type:varchar(20);default:'active';enum('active','suspended')" json:"status"`
+	Status          string     `gorm:"index:idx_users_status,where:status!='active';type:varchar(20);default:'active';enum('active','suspended')" json:"status"`
 	EmailVerified   bool       `gorm:"default:false" json:"email_verified"`
 	EmailVerifiedAt *time.Time `json:"email_verified_at,omitempty"`
 	CreatedAt       time.Time  `gorm:"autoCreateTime" json:"created_at"`

@@ -4,9 +4,11 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type EmailVerification struct {
+	gorm.Model
 	ID        uuid.UUID  `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	UserID    uuid.UUID  `gorm:"type:uuid;not null;foreignKey:UserID;references:ID" json:"user_id"`
 	TokenHash string     `gorm:"not null;unique;index:idx_ev_token_hash" json:"token_hash"`
