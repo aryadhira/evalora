@@ -237,6 +237,14 @@ func (h *AuthHandler) GoogleOAuthCallback(c fiber.Ctx) error {
 	}
 
 	tokens, err := h.authSvc.GoogleOAuthCallback(c.Context(), code, string(c.Request().Header.UserAgent()), c.IP())
+	if errors.Is(err, service.ErrTOTPRequired) {
+		redirectURL := fmt.Sprintf(
+			"%s/2fa-challenge?pending_token=%s",
+			h.authSvc.FrontendURL(),
+			url.QueryEscape(tokens.PendingTOTPToken),
+		)
+		return c.Redirect().To(redirectURL)
+	}
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "OAuth authentication failed"})
 	}
@@ -373,6 +381,21 @@ func (h *AuthHandler) TOTPRegenerateBackup(c fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to regenerate backup codes"})
 	}
 	return c.JSON(fiber.Map{"backup_codes": codes})
+}
+
+func (h *AuthHandler) TOTPStatus(c fiber.Ctx) error {
+	userID, ok := h.userID(c)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "unauthorized"})
+	}
+	enabled, remaining, err := h.authSvc.GetTOTPStatus(userID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to fetch 2FA status"})
+	}
+	return c.JSON(fiber.Map{
+		"totp_enabled":           enabled,
+		"backup_codes_remaining": remaining,
+	})
 }
 
 // ---- Sessions ----

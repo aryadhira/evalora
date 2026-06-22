@@ -10,6 +10,25 @@ export interface TOTPLoginResponse {
   pending_token: string
 }
 
+export interface TOTPStatusResponse {
+  totp_enabled: boolean
+  backup_codes_remaining: number
+}
+
+export interface TOTPSetupResponse {
+  secret: string
+  otp_url: string
+}
+
+export interface TOTPEnableResponse {
+  message: string
+  backup_codes: string[]
+}
+
+export interface TOTPBackupResponse {
+  backup_codes: string[]
+}
+
 export type ActionState = {
   error?: string
   errors?: Partial<Record<string, string>>

@@ -30,6 +30,7 @@ func Setup(app *fiber.App, authHandler *handler.AuthHandler, cfg *config.Config)
 
 	// Protected
 	auth.Post("/logout", jwtAuth, authHandler.Logout)
+	auth.Get("/2fa/status", jwtAuth, authHandler.TOTPStatus)
 	auth.Get("/2fa/setup", jwtAuth, authHandler.TOTPSetup)
 	auth.Post("/2fa/enable", jwtAuth, authHandler.TOTPEnable)
 	auth.Post("/2fa/disable", jwtAuth, authHandler.TOTPDisable)

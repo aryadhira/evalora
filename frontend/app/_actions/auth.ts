@@ -2,8 +2,8 @@
 
 import { redirect } from "next/navigation"
 import { authApi } from "@/app/lib/auth/api-client"
-import { setAuthCookies, clearAuthCookies, extractRefreshTokenFromSetCookie } from "@/app/lib/auth/session"
-import type { ActionState } from "@/app/lib/types/auth"
+import { setAuthCookies, clearAuthCookies, extractRefreshTokenFromSetCookie, getAccessToken } from "@/app/lib/auth/session"
+import type { ActionState, TOTPStatusResponse } from "@/app/lib/types/auth"
 
 function validate(fields: Record<string, { value: string; label: string; min?: number }>) {
   const errors: Record<string, string> = {}
@@ -126,6 +126,52 @@ export async function googleOAuthCallbackAction(_: ActionState, formData: FormDa
   if (!accessToken || !refreshToken) return { error: "OAuth authentication failed" }
   await setAuthCookies(accessToken, refreshToken)
   redirect("/dashboard")
+}
+
+export async function getTOTPStatusAction(): Promise<TOTPStatusResponse | null> {
+  const token = await getAccessToken()
+  if (!token) return null
+  const { data } = await authApi.getTOTPStatus(token)
+  return (data as TOTPStatusResponse) ?? null
+}
+
+export async function setupTOTPAction(): Promise<ActionState> {
+  const token = await getAccessToken()
+  if (!token) return { error: "Not authenticated" }
+  const { data, error } = await authApi.setupTOTP(token)
+  if (error) return { error }
+  return { data }
+}
+
+export async function enableTOTPAction(_: ActionState, formData: FormData): Promise<ActionState> {
+  const secret = formData.get("secret") as string
+  const totp_code = formData.get("totp_code") as string
+  if (!totp_code || totp_code.replace(/\s/g, "").length < 6) return { errors: { totp_code: "Enter your 6-digit code" } }
+  const token = await getAccessToken()
+  if (!token) return { error: "Not authenticated" }
+  const { data, error } = await authApi.enableTOTP(token, { secret, totp_code: totp_code.replace(/\s/g, "") })
+  if (error) return { error }
+  return { data }
+}
+
+export async function disableTOTPAction(_: ActionState, formData: FormData): Promise<ActionState> {
+  const password = formData.get("password") as string
+  if (!password) return { errors: { password: "Password is required" } }
+  const token = await getAccessToken()
+  if (!token) return { error: "Not authenticated" }
+  const { error } = await authApi.disableTOTP(token, { password })
+  if (error) return { error }
+  return { data: { disabled: true } }
+}
+
+export async function regenerateBackupAction(_: ActionState, formData: FormData): Promise<ActionState> {
+  const totp_code = formData.get("totp_code") as string
+  if (!totp_code || totp_code.replace(/\s/g, "").length < 6) return { errors: { totp_code: "Enter your 6-digit code" } }
+  const token = await getAccessToken()
+  if (!token) return { error: "Not authenticated" }
+  const { data, error } = await authApi.regenerateTOTPBackup(token, { totp_code: totp_code.replace(/\s/g, "") })
+  if (error) return { error }
+  return { data }
 }
 
 export async function logoutAction() {

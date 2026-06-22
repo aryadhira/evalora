@@ -95,6 +95,7 @@ type AuthService interface {
 	GoogleOAuthCallback(ctx context.Context, code, userAgent, ipAddress string) (*AuthTokens, error)
 	FrontendURL() string
 
+	GetTOTPStatus(userID uuid.UUID) (bool, int, error)
 	SetupTOTP(userID uuid.UUID) (*TOTPSetupResult, error)
 	EnableTOTP(userID uuid.UUID, secret, totpCode string) ([]string, error)
 	ChallengeTOTP(pendingToken, totpCode, userAgent, ipAddress string) (*AuthTokens, error)
@@ -396,10 +397,37 @@ func (s *authService) GoogleOAuthCallback(ctx context.Context, code, userAgent, 
 		userID = user.ID
 	}
 
+	cred, err := s.userRepo.FindCredentialByUserID(userID)
+	if err != nil {
+		return nil, err
+	}
+	if cred.TOTPEnabled {
+		pendingToken, err := s.generatePendingTOTPToken(userID)
+		if err != nil {
+			return nil, err
+		}
+		return &AuthTokens{PendingTOTPToken: pendingToken}, ErrTOTPRequired
+	}
+
 	return s.issueTokens(userID, userAgent, ipAddress)
 }
 
 // ---- 2FA ----
+
+func (s *authService) GetTOTPStatus(userID uuid.UUID) (bool, int, error) {
+	cred, err := s.userRepo.FindCredentialByUserID(userID)
+	if err != nil {
+		return false, 0, err
+	}
+	remaining := 0
+	if cred.TOTPEnabled && cred.TOTPBackupCodes != "" {
+		var codes []string
+		if json.Unmarshal([]byte(cred.TOTPBackupCodes), &codes) == nil {
+			remaining = len(codes)
+		}
+	}
+	return cred.TOTPEnabled, remaining, nil
+}
 
 func (s *authService) SetupTOTP(userID uuid.UUID) (*TOTPSetupResult, error) {
 	user, err := s.userRepo.FindByID(userID)

@@ -54,6 +54,21 @@ export const authApi = {
   challengeTOTP: (body: { pending_token: string; totp_code: string }) =>
     request("POST", "/auth/2fa/challenge", { body }),
 
+  getTOTPStatus: (token: string) =>
+    request("GET", "/auth/2fa/status", { token }),
+
+  setupTOTP: (token: string) =>
+    request("GET", "/auth/2fa/setup", { token }),
+
+  enableTOTP: (token: string, body: { secret: string; totp_code: string }) =>
+    request("POST", "/auth/2fa/enable", { token, body }),
+
+  disableTOTP: (token: string, body: { password: string }) =>
+    request("POST", "/auth/2fa/disable", { token, body }),
+
+  regenerateTOTPBackup: (token: string, body: { totp_code: string }) =>
+    request("POST", "/auth/2fa/backup/regenerate", { token, body }),
+
   refresh: (refreshToken: string) =>
     request("POST", "/auth/refresh", { refreshToken }),
 
