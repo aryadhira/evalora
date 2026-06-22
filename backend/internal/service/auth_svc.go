@@ -93,6 +93,7 @@ type AuthService interface {
 
 	GoogleOAuthURL(state string) string
 	GoogleOAuthCallback(ctx context.Context, code, userAgent, ipAddress string) (*AuthTokens, error)
+	FrontendURL() string
 
 	SetupTOTP(userID uuid.UUID) (*TOTPSetupResult, error)
 	EnableTOTP(userID uuid.UUID, secret, totpCode string) ([]string, error)
@@ -328,6 +329,8 @@ func (s *authService) ResetPassword(token, newPassword string) error {
 }
 
 // ---- Google OAuth ----
+
+func (s *authService) FrontendURL() string { return s.cfg.AppFrontendURL }
 
 func (s *authService) GoogleOAuthURL(state string) string {
 	return s.oauthConfig.AuthCodeURL(state, oauth2.AccessTypeOffline)

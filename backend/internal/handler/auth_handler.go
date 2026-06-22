@@ -3,6 +3,8 @@ package handler
 import (
 	"errors"
 	"evalora/internal/service"
+	"fmt"
+	"net/url"
 	"time"
 
 	"github.com/gofiber/fiber/v3"
@@ -239,12 +241,14 @@ func (h *AuthHandler) GoogleOAuthCallback(c fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "OAuth authentication failed"})
 	}
 
-	setRefreshCookie(c, tokens.RefreshToken, time.Now().Add(7*24*time.Hour))
-	// In a real app, redirect to frontend with access token in query param or fragment
-	return c.JSON(fiber.Map{
-		"access_token": tokens.AccessToken,
-		"expires_in":   tokens.ExpiresIn,
-	})
+	redirectURL := fmt.Sprintf(
+		"%s/auth/google/callback?access_token=%s&refresh_token=%s&expires_in=%d",
+		h.authSvc.FrontendURL(),
+		url.QueryEscape(tokens.AccessToken),
+		url.QueryEscape(tokens.RefreshToken),
+		tokens.ExpiresIn,
+	)
+	return c.Redirect().To(redirectURL)
 }
 
 // ---- 2FA ----
